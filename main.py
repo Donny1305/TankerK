@@ -6,7 +6,6 @@ try:
     from kivy_garden.mapview import MapView
     from kivy.app import App
     import requests
-    import json
 except BaseException as e:
     open("/error_log.txt", "w").write(e)
 
