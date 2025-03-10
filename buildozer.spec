@@ -1,14 +1,14 @@
 [app]
 
 title = Test
-package.name = eigenesPaket
+package.name = NeuTest
 package.domain = gsog.eigeneDomain
 
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 
 version = 0.1
-requirements = python3,kivy,kivymd,kivy_garden.mapview,requests
+requirements = python3,kivy,kivymd,kivy_garden.mapview,requests,json,
 
 orientation = portrait
 fullscreen = 0

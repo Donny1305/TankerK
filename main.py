@@ -6,7 +6,6 @@ try:
     from kivy_garden.mapview import MapView
     from kivy.app import App
     import requests
-    from src.Dto.GasStationDto import GasStationDto
     import json
 except BaseException as e:
     open("/error_log.txt", "w").write(e)
@@ -28,13 +27,6 @@ class MapViewTanker(FloatLayout):
         data = requests.get(url)
         data = data.json()
         """
-
-        with open('data.json', 'r') as jsonFile:
-            data = json.load(jsonFile)
-
-        gasStationList = []
-        for data in data.get('stations'):
-            gasStationList.append(GasStationDto(data))
 
 class TankerApp(MDApp):
     def build(self):
