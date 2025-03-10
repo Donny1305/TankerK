@@ -1,12 +1,15 @@
-from kivymd.app import MDApp
-from kivy.uix.floatlayout import FloatLayout
-from kivy.core.audio import SoundLoader
-from kivy.lang import Builder
-from kivy_garden.mapview import MapView
-from kivy.app import App
-import requests
-from src.Dto.GasStationDto import GasStationDto
-import json
+try:
+    from kivymd.app import MDApp
+    from kivy.uix.floatlayout import FloatLayout
+    from kivy.core.audio import SoundLoader
+    from kivy.lang import Builder
+    from kivy_garden.mapview import MapView
+    from kivy.app import App
+    import requests
+    from src.Dto.GasStationDto import GasStationDto
+    import json
+except BaseException as e:
+    open("/error_log.txt", "w").write(e)
 
 class MapViewTanker(FloatLayout):
     def __init__(self, **kwargs):
