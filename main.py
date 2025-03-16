@@ -26,41 +26,35 @@ class MapViewTanker(FloatLayout):
         self.map.zoom = 20
         rad = 5
         type = 'e5'
-
-        """
         key = '1e89035b-ed46-fdc3-4baf-feff2614dc10'
         url = 'https://creativecommons.tankerkoenig.de/json/list.php?lat=' + str(lat) + '&lng=' + str(lon) + '&rad=' + str(rad) + '&sort=dist&type=' + type + '&apikey=' + key
         data = requests.get(url)
-        print(data)"
-        """
+        data = data.json()
 
-        with open('data.json') as file:
-            data = json.load(file)
+        for dataSet in data.get('stations'):
+            stationLat = dataSet.get('lat')
+            stationLon = dataSet.get('lng')
+            title = dataSet.get('brand')
+            price = str(dataSet.get('price')) + "€"
+            street = dataSet.get('street') + " " + str(dataSet.get('houseNumber'))
+            location = str(dataSet.get('postCode')) + " " + dataSet.get('place')
+            address = street
+            address += "\n" + location
+            address += "\n" + title
+            address += "\n" + price
+            marker = MapMarkerPopup(lat=stationLat, lon=stationLon, source='32marker.png')
+            labelPrice = Label(text=price)
+            labelTitle = Label(text=title)
+            label = Label(text=address)
+            
+            label.font_size = 24
+            label.color = 1,0,0,1   
 
-            for dataSet in data.get('stations'):
-                stationLat = dataSet.get('lat')
-                stationLon = dataSet.get('lng')
-                title = dataSet.get('brand')
-                price = str(dataSet.get('price')) + "€"
-                street = dataSet.get('street') + " " + str(dataSet.get('houseNumber'))
-                location = str(dataSet.get('postCode')) + " " + dataSet.get('place')
-                address = street
-                address += "\n" + location
-                address += "\n" + title
-                address += "\n" + price
-                marker = MapMarkerPopup(lat=stationLat, lon=stationLon, source='32marker.png')
-                labelPrice = Label(text=price)
-                labelTitle = Label(text=title)
-                label = Label(text=address)
-                
-                label.font_size = 24
-                label.color = 1,0,0,1   
+            marker.popup_size = 100, 100
 
-                marker.popup_size = 100, 100
-
-                marker.add_widget(label)
-                
-                self.map.add_marker(marker)
+            marker.add_widget(label)
+            
+            self.map.add_marker(marker)
     
     def randomZoom(self):
         lat = random.randint(-90, 90)
