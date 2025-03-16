@@ -13,6 +13,7 @@ requirements = python3,kivy,kivymd,kivy_garden.mapview,requests
 orientation = portrait
 fullscreen = 0
 android.archs = arm64-v8a
+android.permissions = INTERNET
 
 # iOS specific
 ios.kivy_ios_url = https://github.com/kivy/kivy-ios
