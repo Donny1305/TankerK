@@ -6,6 +6,8 @@ try:
     from kivy_garden.mapview import MapView
     from kivy.app import App
     import requests
+    import random
+
 except BaseException as e:
     open("/error_log.txt", "w").write(e)
 
@@ -26,6 +28,13 @@ class MapViewTanker(FloatLayout):
         data = requests.get(url)
         data = data.json()
         """
+    
+    def randomZoom(self):
+        lat = random.randint(-90, 90)
+        lon = random.randint(-180, 180)
+        
+        self.map.center_on(lat, lon)
+        self.map.zoom = random.randint(5, 10)
 
 class TankerApp(MDApp):
     def build(self):
