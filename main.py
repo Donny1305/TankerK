@@ -17,7 +17,7 @@ class MapViewTanker(FloatLayout):
         self.map = self.ids.tankerMap
         assert isinstance(self.map, MapView)
         self.map.center_on(lat, lon)
-        self.map.zoom = 19
+        self.map.zoom = 5
         """
         rad = 5
         type = 'e5'
