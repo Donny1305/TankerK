@@ -1,16 +1,11 @@
 try:
     from kivymd.app import MDApp
     from kivy.uix.floatlayout import FloatLayout
-    from kivy.uix.gridlayout import GridLayout
-    from kivy.uix.button import Button
     from kivy.uix.label import Label
     from kivy.lang import Builder
-    from kivy_garden.mapview import MapView, MapMarker, MapMarkerPopup
-    from kivy.app import App
+    from kivy_garden.mapview import MapView, MapMarkerPopup
     import requests
-    import random
     import ssl
-    import json
 except BaseException as e:
     open("/error_log.txt", "w").write(e)
 
