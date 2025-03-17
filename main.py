@@ -16,7 +16,7 @@ class ApiCaller():
     def __init__(self):
         self.__rad = 5
         self.__type = 'e5'
-        self.__key = '1e89035b-ed46-fdc3-4baf-feff2614dc10'
+        self.__key = '97770f93-f9eb-d7d5-45d1-14c52f6817fc'
         self.__url = 'https://creativecommons.tankerkoenig.de/json/list.php'
 
     def getQueriedTankerData(self, lat, lon):
@@ -117,6 +117,7 @@ class TableView(AnchorLayout):
         self.data_tables = MDDataTable(
             size_hint = (0.95, 0.8),
             elevation = 2,
+            rows_num = len(row_data),
             column_data = [
                 ("Name", dp(70)),
                 ("Distanz", dp(30)),
