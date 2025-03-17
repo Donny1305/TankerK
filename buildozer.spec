@@ -1,7 +1,7 @@
 [app]
 
-title = Tankerkönig
-package.name = Tankerkönig
+title = Tankerkoenig
+package.name = Tankerkoenig
 package.domain = gsog.eigeneDomain
 
 source.dir = .
