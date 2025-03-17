@@ -54,11 +54,13 @@ class MapViewTanker(FloatLayout):
             self.map.add_marker(marker)
 
     def getMarkerSourceForPrice(self, price):
+        print(self.lowestPrice * 1.02)
+        print(price)
         if (self.lowestPrice == price):
             return 'green32.png'
         
-        if (self.lowestPrice * 1.02 <= price):
-            return 'blue32.png'
+        if (self.lowestPrice * 1.02 >= price):
+            return 'yellow32.png'
         
         return 'red32.png'
 
