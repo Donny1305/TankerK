@@ -77,6 +77,7 @@ class MapViewTanker(FloatLayout):
 
 class TankerApp(MDApp):
     def build(self):
+        self.icon = 'tankericon.png'
         Builder.load_file("map.kv")
         return MapViewTanker()
     

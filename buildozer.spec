@@ -1,7 +1,7 @@
 [app]
 
-title = Test
-package.name = NeuTest
+title = Tankerkönig
+package.name = Tankerkönig
 package.domain = gsog.eigeneDomain
 
 source.dir = .
@@ -14,6 +14,8 @@ orientation = portrait
 fullscreen = 0
 android.archs = arm64-v8a
 android.permissions = INTERNET
+
+icon.filename = %(source.dir)s/tankericon.png
 
 # iOS specific
 ios.kivy_ios_url = https://github.com/kivy/kivy-ios
