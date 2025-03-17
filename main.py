@@ -31,37 +31,55 @@ class MapViewTanker(FloatLayout):
         data = requests.get(url)
         data = data.json()
 
+        self.setLowestAndHighestPrice(data)
+
         for dataSet in data.get('stations'):
             stationLat = dataSet.get('lat')
             stationLon = dataSet.get('lng')
             title = dataSet.get('brand')
-            price = str(dataSet.get('price')) + "€"
+            price = dataSet.get('price')
             street = dataSet.get('street') + " " + str(dataSet.get('houseNumber'))
             location = str(dataSet.get('postCode')) + " " + dataSet.get('place')
             address = street
             address += "\n" + location
             address += "\n" + title
-            address += "\n" + price
-            marker = MapMarkerPopup(lat=stationLat, lon=stationLon, source='32marker.png')
-            labelPrice = Label(text=price)
-            labelTitle = Label(text=title)
+            address += "\n" + str(price) + "€"
+
+            markerSource = self.getMarkerSourceForPrice(price)
+            marker = MapMarkerPopup(lat=stationLat, lon=stationLon, source=markerSource)
+
             label = Label(text=address)
-            
-            label.font_size = 24
-            label.color = 1,0,0,1   
-
+            label.font_size = 32
+            label.color = 1,0.64,0,1   
+            label.outline_color = 0,0,0,1
+            label.outline_width = 4
             marker.popup_size = 100, 100
-
             marker.add_widget(label)
             
             self.map.add_marker(marker)
-    
-    def randomZoom(self):
-        lat = random.randint(-90, 90)
-        lon = random.randint(-180, 180)
+
+    def getMarkerSourceForPrice(self, price):
+        if (self.highestPrice == price):
+            return 'red32.png'
         
-        self.map.center_on(lat, lon)
-        self.map.zoom = random.randint(5, 10)
+        if (self.lowestPrice == price):
+            return 'green32.png'
+        
+        if (self.lowestPrice * 1.02 <= price):
+            return 'blue32.png'
+
+    def setLowestAndHighestPrice(self, data):
+        self.highestPrice = 0
+        self.lowestPrice = 5
+
+        for dataSet in data.get('stations'):
+            price = dataSet.get('price')
+            if (dataSet.get('price')) > self.highestPrice:
+                self.highestPrice = price
+                continue
+
+            if (dataSet.get('price')) < self.lowestPrice:
+                self.lowestPrice = price
 
 class TankerApp(MDApp):
     def build(self):
