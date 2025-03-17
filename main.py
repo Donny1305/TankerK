@@ -7,6 +7,7 @@ from kivymd.uix.bottomnavigation.bottomnavigation import MDBottomNavigation, MDB
 from kivymd.uix.label import MDLabel
 from kivymd.uix.datatables import MDDataTable
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.core.window import Window
 from kivy.metrics import dp
 import requests
 import ssl
@@ -25,7 +26,7 @@ class ApiCaller():
 
             return data.json()
         except Exception as error:
-            print(f'an error occurred {error}')
+            print(f'an error occurred, message: {error}')
 
             return { "stations": [] }
     
@@ -96,6 +97,36 @@ class MapViewTanker(FloatLayout):
 
             if (dataSet.get('price')) < self.lowestPrice:
                 self.lowestPrice = price
+
+class TableView(AnchorLayout):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+        lat = 48.47728212579956
+        lon = 7.955887812049504
+
+        apiCaller = ApiCaller()
+        data = apiCaller.getQueriedTankerData(lat, lon)
+        stationData = data['stations']
+
+        row_data = [
+            (station['name'], station['dist'], station['price'])
+            for station in stationData
+        ]
+
+        self.data_tables = MDDataTable(
+            size_hint = (0.95, 0.8),
+            elevation = 2,
+            column_data = [
+                ("Name", dp(70)),
+                ("Distanz", dp(30)),
+                ("Preis", dp(30))
+            ],
+            row_data = row_data
+        )
+
+        self.add_widget(self.data_tables)
+
                 
 class TankerApp(MDApp):
     def build(self):
@@ -106,7 +137,6 @@ class TankerApp(MDApp):
                 'name': 'map_screen',
                 'icon': 'map',
                 'widget': MapViewTanker(),
-                'label': None,
             },
             {
                 'name': 'home_screen',
@@ -117,8 +147,7 @@ class TankerApp(MDApp):
             {
                 'name': 'table_screen',
                 'icon': 'table',
-                'widget': MDLabel(text='TABLEVIEW', halign='center'),
-                'label': 'TABLEVIEW',
+                'widget': TableView(),
             }
         ]
 
