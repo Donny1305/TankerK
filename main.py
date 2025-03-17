@@ -5,6 +5,9 @@ from kivy.lang import Builder
 from kivy_garden.mapview import MapView, MapMarkerPopup
 from kivymd.uix.bottomnavigation.bottomnavigation import MDBottomNavigation, MDBottomNavigationItem
 from kivymd.uix.label import MDLabel
+from kivymd.uix.datatables import MDDataTable
+from kivy.uix.anchorlayout import AnchorLayout
+from kivy.metrics import dp
 import requests
 import ssl
 
@@ -16,10 +19,15 @@ class ApiCaller():
         self.__url = 'https://creativecommons.tankerkoenig.de/json/list.php'
 
     def getQueriedTankerData(self, lat, lon):
-        url = self.__url + "?lat=" + str(lat) + '&lng=' + str(lon) + '&rad=' + str(self.__rad) + '&sort=dist&type=' + self.__type + '&apikey=' + self.__key
-        data = requests.get(url)
+        try:
+            url = self.__url + "?lat=" + str(lat) + '&lng=' + str(lon) + '&rad=' + str(self.__rad) + '&sort=dist&type=' + self.__type + '&apikey=' + self.__key
+            data = requests.get(url)
 
-        return data.json()
+            return data.json()
+        except Exception as error:
+            print(f'an error occurred {error}')
+
+            return { "stations": [] }
     
 class MapViewTanker(FloatLayout):
     def __init__(self, **kwargs):
@@ -88,7 +96,7 @@ class MapViewTanker(FloatLayout):
 
             if (dataSet.get('price')) < self.lowestPrice:
                 self.lowestPrice = price
-
+                
 class TankerApp(MDApp):
     def build(self):
         Builder.load_file("map.kv")
@@ -125,4 +133,3 @@ class TankerApp(MDApp):
     
 if __name__ == '__main__':
     TankerApp().run()
-
