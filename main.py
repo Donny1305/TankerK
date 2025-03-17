@@ -3,6 +3,8 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from kivy.lang import Builder
 from kivy_garden.mapview import MapView, MapMarkerPopup
+from kivymd.uix.bottomnavigation.bottomnavigation import MDBottomNavigation, MDBottomNavigationItem
+from kivymd.uix.label import MDLabel
 import requests
 import ssl
 
@@ -89,10 +91,37 @@ class MapViewTanker(FloatLayout):
 
 class TankerApp(MDApp):
     def build(self):
-        self.icon = 'tankericon.png'
         Builder.load_file("map.kv")
-        
-        return MapViewTanker()
+
+        nav_items_config = [
+            {
+                'name': 'map_screen',
+                'icon': 'map',
+                'widget': MapViewTanker(),
+                'label': None,
+            },
+            {
+                'name': 'home_screen',
+                'icon': 'home',
+                'widget': MDLabel(text='SETTINGS', halign='center'),
+                'label': 'SETTINGS',
+            },
+            {
+                'name': 'table_screen',
+                'icon': 'table',
+                'widget': MDLabel(text='TABLEVIEW', halign='center'),
+                'label': 'TABLEVIEW',
+            }
+        ]
+
+        layout = MDBottomNavigation()
+
+        for nav_item in nav_items_config:
+            item = MDBottomNavigationItem(name=nav_item['name'], icon=nav_item['icon'])
+            item.add_widget(nav_item['widget'])
+            layout.add_widget(item)
+
+        return layout
     
 if __name__ == '__main__':
     TankerApp().run()
