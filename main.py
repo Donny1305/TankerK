@@ -11,55 +11,70 @@ from kivymd.uix.datatables import MDDataTable
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.core.window import Window
 from kivy.metrics import dp
-import requests
+from kivy.properties import NumericProperty, StringProperty
 import ssl
-import json
-import geocoder
+from ApiCaller import ApiCaller
+from SettingsService import SettingsService
 
-class ApiCaller():
-    def __init__(self):
-        with open('settings.json', 'r') as openfile:
-            json_object = json.load(openfile)
-        
-        self.__radius = json_object["radius"]
-        self.__fuel = json_object["fuel"]
-        self.__key = '97770f93-f9eb-d7d5-45d1-14c52f6817fc'
-        self.__url = 'https://creativecommons.tankerkoenig.de/json/list.php'
-
-    def getQueriedTankerData(self):
-        try:
-            g = geocoder.ip('me')
-            print(g.latlng[0])
-            url = self.__url + "?lat=" + str(g.latlng[0]) + '&lng=' + str(g.latlng[1]) + '&rad=' + str(self.__radius) + '&sort=dist&type=' + self.__fuel + '&apikey=' + self.__key
-            data = requests.get(url)
-
-            return data.json()
-        except Exception as error:
-            print(f'an error occurred, message: {error}')
-
-            return { "stations": [] }
-    
 class MapViewTanker(FloatLayout):
+    '''
+    Author: Marian Neff
+    -------------------
+    The MapViewTanker class uses the MapView class from kivy_garden.mapview to provide the different map capabilities of the application.
+    The main purpose is to display an OpenStreetMap and fill it with different markers for petrol stations around the user's location.
+    The MapView gets arranged into a FloatLayout to allow easy control of the map space.
+    -------------------
+    '''  
+
+    lat = NumericProperty()
+    lon = NumericProperty()
+    zoom = NumericProperty()
+
     def __init__(self, **kwargs):
+        '''
+        Initialises the class with all the different needed values. It generates initial markers for the different petrol stations returned from the TankerKoenig API.
+        -------------------
+        Parameters:
+            none
+        -------------------
+        Returns:
+            void
+        -------------------
+        '''
+
+        #@TODO: Until the setting UI is implemented, some of the functionality is statically coded here. Once the setting functionality is implemented, the API calls will be extracted and the map will be controlled dynamically to the request. 
         ssl._create_default_https_context = ssl._create_stdlib_context
         super().__init__(**kwargs)
         g = geocoder.ip('me')
 
-        lat = g.latlng[0]
-        lon = g.latlng[1]
+        self.lat = 48.47728212579956
+        self.lon = 7.955887812049504
 
-        self.map = self.ids.tankerMap
-        self.map.center_on(lat, lon)
-        self.map.zoom = 15
-        assert isinstance(self.map, MapView)
+        self.__map = self.ids.tankerMap
 
-        apiCaller = ApiCaller()
-        data = apiCaller.getQueriedTankerData()
+        self.zoom = 20
 
-        self.setLowestAndHighestPrice(data)
+        assert isinstance(self.__map, MapView)
+
+        settingsService = SettingsService()
+        apiCaller = ApiCaller(settingsService)
+        data = apiCaller.getQueriedTankerData(self.lat, self.lon)
+
+        self.__setLowestAndHighestPrice(data)
         self.generateMarkersForData(data)
-    
+
     def generateMarkersForData(self, data):
+        '''
+        Uses the provided dataset to generate according MapMarkerPopups on the MapView element. This will be visible in the UI so that the user can see where each station is and what the prices are like.
+        -------------------
+        Parameters:
+            data: dictionary
+        -------------------
+        Returns:
+            void
+        -------------------
+        '''
+
         for dataSet in data.get('stations'):
             stationLat = dataSet.get('lat')
             stationLon = dataSet.get('lng')
@@ -87,33 +102,83 @@ class MapViewTanker(FloatLayout):
             self.map.add_marker(marker)
 
     def getMarkerSourceForPrice(self, price):
-        if (self.lowestPrice == price):
+        '''
+        Checks the provided price to see if it is a bad, mediocre or good price compared to the highest and lowest price of the queried dataset.
+        Stations with prices equal to the best price are marked in green.
+        Stations with prices within 20% of the best prices are marked in yellow.
+        Any other station is marked in red.
+        -------------------
+        Parameters:
+            price: float
+        -------------------
+        Returns:
+            string
+        -------------------
+        '''
+            
+        if (self.__lowestPrice == price):
             return 'images/green32.png'
         
-        if (self.lowestPrice * 1.02 >= price):
+        if (self.__lowestPrice * 1.02 >= price):
             return 'images/yellow32.png'
         
         return 'images/red32.png'
 
-    def setLowestAndHighestPrice(self, data):
-        self.highestPrice = 0
-        self.lowestPrice = 5
+    def __setLowestAndHighestPrice(self, data):
+        '''
+        Sets the lowest and highest price based off of the dataset.
+        -------------------
+        Parameters:
+            data: dictionary
+        -------------------
+        Returns:
+            void
+        -------------------
+        '''
+
+        self.__highestPrice = 0
+        self.__lowestPrice = 5
 
         for dataSet in data.get('stations'):
             price = dataSet.get('price')
-            if (dataSet.get('price')) > self.highestPrice:
-                self.highestPrice = price
+            if (dataSet.get('price')) > self.__highestPrice:
+                self.__highestPrice = price
                 continue
 
-            if (dataSet.get('price')) < self.lowestPrice:
-                self.lowestPrice = price
+            if (dataSet.get('price')) < self.__lowestPrice:
+                self.__lowestPrice = price
 
 class TableView(AnchorLayout):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    '''
+    Author: Alexander Gajer
+    -------------------
+    The TableView extends the AnchorLayout to allow easy positioning to the different cardinal directions. It provides the table widget that allows the user to display all the different petrol station data.
+    -------------------
+    ''' 
 
-        apiCaller = ApiCaller()
-        data = apiCaller.getQueriedTankerData()
+    def __init__(self, **kwargs):
+        '''
+        Initializes the TableView and fills it with queried data from the Tankerkoenig API. It uses the settings from the SettingsService to determine which data to query for when calling the API.
+        The TableView displays rows for the name, distance and price of each petrol station.
+        -------------------
+        Parameters:
+            price: float
+        -------------------
+        Returns:
+            string
+        -------------------
+        '''
+                
+        super().__init__(**kwargs)
+        
+        #@TODO: Until the setting UI is implemented, some of the functionality is statically coded here. Once the setting functionality is implemented, the API calls will be extracted and the map will be controlled dynamically to the request. 
+
+        lat = 48.47728212579956
+        lon = 7.955887812049504
+
+        settingsService = SettingsService()
+        apiCaller = ApiCaller(settingsService)
+        data = apiCaller.getQueriedTankerData(lat, lon)
         stationData = data['stations']
 
         row_data = [
@@ -133,93 +198,31 @@ class TableView(AnchorLayout):
             row_data = row_data
         )
 
-        self.add_widget(self.data_tables)#
+        self.add_widget(self.data_tables)
 
-class SettingsLayout(BoxLayout):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.__radius = 5
-        self.__fuel = 'e5'
 
-    def fuelDropdown(self):
-        self.menu_list = [
-            {
-                "viewclass": "OneLineListItem",
-                "text": "E5",
-                "on_release": lambda x=f"e5": self.fuel_menu_callback(x),
-            },
-            {
-                "viewclass": "OneLineListItem",
-                "text": "E10",
-                "on_release": lambda x=f"e10": self.fuel_menu_callback(x),
-            },
-            {
-                "viewclass": "OneLineListItem",
-                "text": "Diesel",
-                "on_release": lambda x=f"diesel": self.fuel_menu_callback(x),
-            },
-            {
-                "viewclass": "OneLineListItem",
-                "text": "Alle",
-                "on_release": lambda x=f"all": self.fuel_menu_callback(x),
-            }
-        ]
-        self.menu = MDDropdownMenu(
-            caller = self.ids.fuelMenu,
-            items = self.menu_list
-        )
-        self.menu.open()
-
-    def radiusDropdown(self):
-        self.menu_list = [
-            {
-                "viewclass": "OneLineListItem",
-                "text": "5km",
-                "on_release": lambda x=5: self.radius_menu_callback(x),
-            },
-            {
-                "viewclass": "OneLineListItem",
-                "text": "10km",
-                "on_release": lambda x=10: self.radius_menu_callback(x),
-            },
-            {
-                "viewclass": "OneLineListItem",
-                "text": "15km",
-                "on_release": lambda x=15: self.radius_menu_callback(x),
-            },
-            {
-                "viewclass": "OneLineListItem",
-                "text": "25km",
-                "on_release": lambda x=25: self.radius_menu_callback(x),
-            }
-        ]
-        self.menu = MDDropdownMenu(
-            caller = self.ids.radiusMenu,
-            items = self.menu_list
-        )
-        self.menu.open()
-    
-    def fuel_menu_callback(self, text_item):
-        self.__fuel = str(text_item)
-        self.ids.fuelMenu.text = str(text_item)
-        self.menu.dismiss()
-    
-    def radius_menu_callback(self, text_item):
-        self.__radius = float(text_item)
-        self.ids.radiusMenu.text = str(text_item) + "km"
-        self.menu.dismiss()
-    
-    def saveSettings(self):
-        settings = {
-            "radius": self.__radius,
-            "fuel": self.__fuel
-        }
-        
-        with open("settings.json", "w") as outfile:
-            json.dump(settings, outfile)
                 
 class TankerApp(MDApp):
+    '''
+    Author: Marian Neff (MapView), Alexander Gajer (Bottom Navigation and Icons, Widgets for TableView and Settings)
+    -------------------
+    The TankerApp extends the MDApp and is the main application used to display all the different functionalities.
+    It loads the navigation, table view and map view so that the user has access to these types of displays.
+    -------------------
+    ''' 
+
     def build(self):
+        '''
+        Builds all the different UI elements needed for the application. The different views get created and are then loaded into the Bottom Navigation to allow easy cycling.
+        -------------------
+        Parameters:
+            none
+        -------------------
+        Returns:
+            MDBottomNavigation
+        -------------------
+        '''
+
         Builder.load_file("map.kv")
 
         nav_items_config = [
@@ -233,10 +236,10 @@ class TankerApp(MDApp):
                 'icon': 'home',
                 'widget': SettingsLayout(),
             },
-            {
+            { 
                 'name': 'table_screen',
                 'icon': 'table',
-                'widget': TableView(),
+                'widget': TableView(), 
             }
         ]
 

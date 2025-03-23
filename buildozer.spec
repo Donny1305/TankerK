@@ -15,7 +15,7 @@ fullscreen = 0
 android.archs = arm64-v8a
 android.permissions = INTERNET
 
-icon.filename = %(source.dir)s/tankericon.png
+icon.filename = %(source.dir)s/images/tankericon.png
 
 # iOS specific
 ios.kivy_ios_url = https://github.com/kivy/kivy-ios
