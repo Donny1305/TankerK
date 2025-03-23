@@ -42,9 +42,7 @@ class ApiCaller():
         -------------------
         '''
 
-        try:
-            #@TODO: Until the setting UI is implemented, the setting is hardcoded here. 
-            self.__settingsService.saveSettings(5, 'e5')
+        try: 
             settings = self.__settingsService.loadSettings()
             url = self.URL + "?lat=" + str(lat) + '&lng=' + str(lon) + '&rad=' + str(settings.get('radius')) + '&sort=dist&type=' + settings.get('type') + '&apikey=' + self.KEY
             data = requests.get(url)

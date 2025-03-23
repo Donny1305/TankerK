@@ -15,6 +15,7 @@ from kivy.properties import NumericProperty, StringProperty
 import ssl
 from ApiCaller import ApiCaller
 from SettingsService import SettingsService
+import geocoder
 
 class MapViewTanker(FloatLayout):
     '''
@@ -42,13 +43,12 @@ class MapViewTanker(FloatLayout):
         -------------------
         '''
 
-        #@TODO: Until the setting UI is implemented, some of the functionality is statically coded here. Once the setting functionality is implemented, the API calls will be extracted and the map will be controlled dynamically to the request. 
         ssl._create_default_https_context = ssl._create_stdlib_context
         super().__init__(**kwargs)
         g = geocoder.ip('me')
 
-        self.lat = 48.47728212579956
-        self.lon = 7.955887812049504
+        self.lat = g.latlng[0]
+        self.lon = g.latlng[1]
 
         self.__map = self.ids.tankerMap
 
@@ -99,7 +99,7 @@ class MapViewTanker(FloatLayout):
             marker.popup_size = 100, 100
             marker.add_widget(label)
 
-            self.map.add_marker(marker)
+            self.__map.add_marker(marker)
 
     def getMarkerSourceForPrice(self, price):
         '''
@@ -170,11 +170,10 @@ class TableView(AnchorLayout):
         '''
                 
         super().__init__(**kwargs)
+        g = geocoder.ip('me')
         
-        #@TODO: Until the setting UI is implemented, some of the functionality is statically coded here. Once the setting functionality is implemented, the API calls will be extracted and the map will be controlled dynamically to the request. 
-
-        lat = 48.47728212579956
-        lon = 7.955887812049504
+        lat = g.latlng[0]
+        lon = g.latlng[1]
 
         settingsService = SettingsService()
         apiCaller = ApiCaller(settingsService)
@@ -200,7 +199,89 @@ class TableView(AnchorLayout):
 
         self.add_widget(self.data_tables)
 
+class SettingsLayout(BoxLayout):
+    '''
+    Author: Marc Lepold
+    -------------------
+    The SettingsLayout extends the BoxLayout to arrange children in a vertical or horizontal box. It provides the settings widget that allows the user to change the fuel type and the radius.
+    -------------------
+    '''
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.__radius = 5
+        self.__type = 'e5'
 
+    def typeDropdown(self):
+        self.menu_list = [
+            {
+                "viewclass": "OneLineListItem",
+                "text": "E5",
+                "on_release": lambda x=f"e5": self.type_menu_callback(x),
+            },
+            {
+                "viewclass": "OneLineListItem",
+                "text": "E10",
+                "on_release": lambda x=f"e10": self.type_menu_callback(x),
+            },
+            {
+                "viewclass": "OneLineListItem",
+                "text": "Diesel",
+                "on_release": lambda x=f"diesel": self.type_menu_callback(x),
+            },
+            {
+                "viewclass": "OneLineListItem",
+                "text": "Alle",
+                "on_release": lambda x=f"all": self.type_menu_callback(x),
+            }
+        ]
+        self.menu = MDDropdownMenu(
+            caller = self.ids.typeMenu,
+            items = self.menu_list
+        )
+        self.menu.open()
+
+    def radiusDropdown(self):
+        self.menu_list = [
+            {
+                "viewclass": "OneLineListItem",
+                "text": "5km",
+                "on_release": lambda x=5: self.radius_menu_callback(x),
+            },
+            {
+                "viewclass": "OneLineListItem",
+                "text": "10km",
+                "on_release": lambda x=10: self.radius_menu_callback(x),
+            },
+            {
+                "viewclass": "OneLineListItem",
+                "text": "15km",
+                "on_release": lambda x=15: self.radius_menu_callback(x),
+            },
+            {
+                "viewclass": "OneLineListItem",
+                "text": "25km",
+                "on_release": lambda x=25: self.radius_menu_callback(x),
+            }
+        ]
+        self.menu = MDDropdownMenu(
+            caller = self.ids.radiusMenu,
+            items = self.menu_list
+        )
+        self.menu.open()
+    
+    def type_menu_callback(self, text_item):
+        self.__type = str(text_item)
+        self.ids.typeMenu.text = str(text_item)
+        self.menu.dismiss()
+    
+    def radius_menu_callback(self, text_item):
+        self.__radius = float(text_item)
+        self.ids.radiusMenu.text = str(text_item) + "km"
+        self.menu.dismiss()
+    
+    def saveSettings(self):
+        settingsService = SettingsService()
+        settingsService.saveSettings(self.__radius, self.__type)
                 
 class TankerApp(MDApp):
     '''
