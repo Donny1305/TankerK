@@ -9,6 +9,7 @@ from kivymd.uix.datatables import MDDataTable
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.core.window import Window
 from kivy.metrics import dp
+from kivy.properties import NumericProperty, StringProperty
 import ssl
 from ApiCaller import ApiCaller
 from SettingsService import SettingsService
@@ -22,6 +23,11 @@ class MapViewTanker(FloatLayout):
     The MapView gets arranged into a FloatLayout to allow easy control of the map space.
     -------------------
     '''  
+
+    lat = NumericProperty()
+    lon = NumericProperty()
+    zoom = NumericProperty()
+
     def __init__(self, **kwargs):
         '''
         Initialises the class with all the different needed values. It generates initial markers for the different petrol stations returned from the TankerKoenig API.
@@ -38,21 +44,20 @@ class MapViewTanker(FloatLayout):
         ssl._create_default_https_context = ssl._create_stdlib_context
         super().__init__(**kwargs)
 
-        lat = 48.47728212579956
-        lon = 7.955887812049504
+        self.lat = 48.47728212579956
+        self.lon = 7.955887812049504
 
-        self.map = self.ids.tankerMap
+        self.__map = self.ids.tankerMap
 
-        self.map.center_on(lat, lon)
-        self.map.zoom = 20
+        self.zoom = 20
 
-        assert isinstance(self.map, MapView)
+        assert isinstance(self.__map, MapView)
 
         settingsService = SettingsService()
         apiCaller = ApiCaller(settingsService)
-        data = apiCaller.getQueriedTankerData(lat, lon)
+        data = apiCaller.getQueriedTankerData(self.lat, self.lon)
 
-        self.setLowestAndHighestPrice(data)
+        self.__setLowestAndHighestPrice(data)
         self.generateMarkersForData(data)
 
     def generateMarkersForData(self, data):
@@ -108,15 +113,15 @@ class MapViewTanker(FloatLayout):
         -------------------
         '''
             
-        if (self.lowestPrice == price):
+        if (self.__lowestPrice == price):
             return 'images/green32.png'
         
-        if (self.lowestPrice * 1.02 >= price):
+        if (self.__lowestPrice * 1.02 >= price):
             return 'images/yellow32.png'
         
         return 'images/red32.png'
 
-    def setLowestAndHighestPrice(self, data):
+    def __setLowestAndHighestPrice(self, data):
         '''
         Sets the lowest and highest price based off of the dataset.
         -------------------
@@ -128,17 +133,17 @@ class MapViewTanker(FloatLayout):
         -------------------
         '''
 
-        self.highestPrice = 0
-        self.lowestPrice = 5
+        self.__highestPrice = 0
+        self.__lowestPrice = 5
 
         for dataSet in data.get('stations'):
             price = dataSet.get('price')
-            if (dataSet.get('price')) > self.highestPrice:
-                self.highestPrice = price
+            if (dataSet.get('price')) > self.__highestPrice:
+                self.__highestPrice = price
                 continue
 
-            if (dataSet.get('price')) < self.lowestPrice:
-                self.lowestPrice = price
+            if (dataSet.get('price')) < self.__lowestPrice:
+                self.__lowestPrice = price
 
 class TableView(AnchorLayout):
     '''
