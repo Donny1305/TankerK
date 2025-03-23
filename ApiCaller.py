@@ -1,5 +1,6 @@
 from SettingsService import SettingsService
 import requests
+import json
 
 class ApiCaller():
     '''
@@ -10,7 +11,7 @@ class ApiCaller():
     -------------------
     '''
 
-    KEY = '97770f93-f9eb-d7d5-45d1-14c52f6817fc'
+    KEY = '1e89035b-ed46-fdc3-4baf-feff2614dc10'
     URL = 'https://creativecommons.tankerkoenig.de/json/list.php'
 
     def __init__(self, settingsService):

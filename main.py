@@ -9,7 +9,6 @@ from kivymd.uix.datatables import MDDataTable
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.core.window import Window
 from kivy.metrics import dp
-import json
 import ssl
 from ApiCaller import ApiCaller
 from SettingsService import SettingsService
@@ -55,18 +54,19 @@ class MapViewTanker(FloatLayout):
 
         self.setLowestAndHighestPrice(data)
         self.generateMarkersForData(data)
-    
-    '''
-    Uses the provided dataset to generate according MapMarkerPopups on the MapView element. This will be visible in the UI so that the user can see where each station is and what the prices are like.
-    -------------------
-    Parameters:
-        data: dictionary
-    -------------------
-    Returns:
-        void
-    -------------------
-    '''
+
     def generateMarkersForData(self, data):
+        '''
+        Uses the provided dataset to generate according MapMarkerPopups on the MapView element. This will be visible in the UI so that the user can see where each station is and what the prices are like.
+        -------------------
+        Parameters:
+            data: dictionary
+        -------------------
+        Returns:
+            void
+        -------------------
+        '''
+
         for dataSet in data.get('stations'):
             stationLat = dataSet.get('lat')
             stationLon = dataSet.get('lng')
@@ -93,28 +93,28 @@ class MapViewTanker(FloatLayout):
 
             self.map.add_marker(marker)
 
-    
-    '''
-    Checks the provided price to see if it is a bad, mediocre or good price compared to the highest and lowest price of the queried dataset.
-    Stations with prices equal to the best price are marked in green.
-    Stations with prices within 20% of the best prices are marked in yellow.
-    Any other station is marked in red.
-    -------------------
-    Parameters:
-        price: float
-    -------------------
-    Returns:
-        string
-    -------------------
-    '''
     def getMarkerSourceForPrice(self, price):
+        '''
+        Checks the provided price to see if it is a bad, mediocre or good price compared to the highest and lowest price of the queried dataset.
+        Stations with prices equal to the best price are marked in green.
+        Stations with prices within 20% of the best prices are marked in yellow.
+        Any other station is marked in red.
+        -------------------
+        Parameters:
+            price: float
+        -------------------
+        Returns:
+            string
+        -------------------
+        '''
+            
         if (self.lowestPrice == price):
-            return 'green32.png'
+            return 'images/green32.png'
         
         if (self.lowestPrice * 1.02 >= price):
-            return 'yellow32.png'
+            return 'images/yellow32.png'
         
-        return 'red32.png'
+        return 'images/red32.png'
 
     def setLowestAndHighestPrice(self, data):
         '''
@@ -127,6 +127,7 @@ class MapViewTanker(FloatLayout):
             void
         -------------------
         '''
+
         self.highestPrice = 0
         self.lowestPrice = 5
 
@@ -140,9 +141,30 @@ class MapViewTanker(FloatLayout):
                 self.lowestPrice = price
 
 class TableView(AnchorLayout):
+    '''
+    Author: Alexander Gajer
+    -------------------
+    The TableView extends the AnchorLayout to allow easy positioning to the different cardinal directions. It provides the table widget that allows the user to display all the different petrol station data.
+    -------------------
+    ''' 
+
     def __init__(self, **kwargs):
+        '''
+        Initializes the TableView and fills it with queried data from the Tankerkoenig API. It uses the settings from the SettingsService to determine which data to query for when calling the API.
+        The TableView displays rows for the name, distance and price of each petrol station.
+        -------------------
+        Parameters:
+            price: float
+        -------------------
+        Returns:
+            string
+        -------------------
+        '''
+                
         super().__init__(**kwargs)
         
+        #@TODO: Until the setting UI is implemented, some of the functionality is statically coded here. Once the setting functionality is implemented, the API calls will be extracted and the map will be controlled dynamically to the request. 
+
         lat = 48.47728212579956
         lon = 7.955887812049504
 
@@ -174,7 +196,7 @@ class TableView(AnchorLayout):
                 
 class TankerApp(MDApp):
     '''
-    Author: Marian Neff, Alexander Gajer
+    Author: Marian Neff (MapView), Alexander Gajer (Bottom Navigation and Icons, Widgets for TableView and Settings)
     -------------------
     The TankerApp extends the MDApp and is the main application used to display all the different functionalities.
     It loads the navigation, table view and map view so that the user has access to these types of displays.
@@ -192,6 +214,7 @@ class TankerApp(MDApp):
             MDBottomNavigation
         -------------------
         '''
+
         Builder.load_file("map.kv")
 
         nav_items_config = [
