@@ -45,24 +45,12 @@ class MapViewTanker(FloatLayout):
 
         ssl._create_default_https_context = ssl._create_stdlib_context
         super().__init__(**kwargs)
-        settingsService = SettingsService()
-        (lat, long) = settingsService.loadLocationSettings()
-        self.lat = lat
-        self.lon = long
-
         self.__map = self.ids.tankerMap
-
         self.zoom = 20
 
-        assert isinstance(self.__map, MapView)
+        self.updateMap()
 
-        apiCaller = ApiCaller(settingsService)
-        data = apiCaller.getQueriedTankerData()
-
-        self.__setLowestAndHighestPrice(data)
-        self.generateMarkersForData(data)
-
-    def generateMarkersForData(self, data):
+    def __generateMarkersForData(self, data):
         '''
         Uses the provided dataset to generate according MapMarkerPopups on the MapView element. This will be visible in the UI so that the user can see where each station is and what the prices are like.
         -------------------
@@ -146,6 +134,35 @@ class MapViewTanker(FloatLayout):
 
             if (dataSet.get('price')) < self.__lowestPrice:
                 self.__lowestPrice = price
+
+    def __updateDataIfTypeAll(self, data):
+        key = 0
+        for dataSet in data.get('stations'):
+            dataPrices = {'diesel': dataSet.get('diesel'), 'e5': dataSet.get('e5'), 'e10': dataSet.get('e10')}
+            minPrice = min(dataPrices.values())
+            data.get('stations')[key]['price'] = minPrice
+            key += 1
+
+        return data
+            
+    
+    def updateMap(self):
+        settingsService = SettingsService()
+        (lat, long) = settingsService.loadLocationSettings()
+        self.lat = lat
+        self.lon = long
+
+        settings = settingsService.loadSettings()
+        apiCaller = ApiCaller(settingsService)
+        data = apiCaller.getQueriedTankerData()
+
+        if ('all' == settings.get('type')):
+            data = self.__updateDataIfTypeAll(data)
+
+        self.__setLowestAndHighestPrice(data)
+        self.__generateMarkersForData(data)
+
+
 
 class TableView(AnchorLayout):
     '''
@@ -282,6 +299,8 @@ class SettingsLayout(BoxLayout):
         settingsService = SettingsService()
         settingsService.saveSettings(self.__radius, self.__type)
         settingsService.saveLocationSettings(getLoc.latitude, getLoc.longitude)
+
+        MDApp.get_running_app().root.first_widget.children[0].updateMap()
                 
 class TankerApp(MDApp):
     '''
