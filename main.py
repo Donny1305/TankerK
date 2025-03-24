@@ -285,10 +285,10 @@ class SettingsLayout(BoxLayout):
                 
 class TankerApp(MDApp):
     '''
-    Author: Marian Neff (MapView), Alexander Gajer (Bottom Navigation and Icons, Widgets for TableView and Settings)
+    Author: Marian Neff (MapView), Alexander Gajer (Bottom Navigation and Icons, Widgets for TableView and Settings) and Marc Lepold (Settings for location, fuel type and radius)
     -------------------
     The TankerApp extends the MDApp and is the main application used to display all the different functionalities.
-    It loads the navigation, table view and map view so that the user has access to these types of displays.
+    It loads the navigation, table view, map view and settings layout so that the user has access to these types of displays.
     -------------------
     ''' 
 

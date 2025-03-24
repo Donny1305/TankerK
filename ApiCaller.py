@@ -1,6 +1,5 @@
 from SettingsService import SettingsService
 import requests
-import json
 
 class ApiCaller():
     '''
@@ -31,11 +30,10 @@ class ApiCaller():
 
     def getQueriedTankerData(self):
         '''
-        Uses the provided location values to query the Tankerkoenig API and get back matching values. The settings for the API call are loaded through the SettingsService class.
+        Uses the provided location values to query the Tankerkoenig API and get back matching values. The settings and the location values for the API call are loaded through the SettingsService class.
         -------------------
         Parameters:
-            lat: float, 
-            lon: float
+            none
         -------------------
         Returns:
             dictionary

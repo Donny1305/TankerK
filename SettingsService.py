@@ -98,11 +98,11 @@ class SettingsService():
     
     def saveLocationSettings(self, lat, long):
         '''
-        Saves the provided settings into the settings.json file if they are valid.
+        Saves the provided location settings into the location_settings.json file.
         -------------------
         Parameters:
-            radius: float, range 1 - 25
-            type: string, ["e5", "e10", "diesel", "all"]
+            lat: float
+            long: float
         -------------------
         Returns:
             boolean
@@ -126,14 +126,14 @@ class SettingsService():
 
     def loadLocationSettings(self):
         '''
-        Loads the saved settings directly from the the settings.json file. If no settings are provided, it will return an empty dictionary instead of the settings.
-        The returned setting dictionary should typically have the "radius" and "type" parameters.
+        Loads the saved location settings directly from the the location_settings.json file. If no settings are provided, it will return the current location based on the geocoder package.
+        The returned setting tupel should typically have the "lat" and "long" parameters.
         -------------------
         Parameters:
             none
         -------------------
         Returns:
-            dictionary
+            tupel
         -------------------
         '''
 
