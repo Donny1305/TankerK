@@ -47,7 +47,7 @@ class MapViewTanker(FloatLayout):
         ssl._create_default_https_context = ssl._create_stdlib_context
         super().__init__(**kwargs)
         self.__map = self.ids.tankerMap
-        self.zoom = 20
+        self.zoom = 15
 
         self.updateMap()
 
@@ -149,10 +149,8 @@ class MapViewTanker(FloatLayout):
     
     def updateMap(self):
         settingsService = SettingsService()
-        (lat, long) = settingsService.loadLocationSettings()
-        self.lat = lat
-        self.lon = long
-
+        (lat, lon) = settingsService.loadLocationSettings()
+        self.__map.center_on(lat, lon)
         settings = settingsService.loadSettings()
         apiCaller = ApiCaller(settingsService)
         data = apiCaller.getQueriedTankerData()
