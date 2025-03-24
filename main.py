@@ -46,10 +46,10 @@ class MapViewTanker(FloatLayout):
 
         ssl._create_default_https_context = ssl._create_stdlib_context
         super().__init__(**kwargs)
-        g = geocoder.ip('me')
-
-        self.lat = g.latlng[0]
-        self.lon = g.latlng[1]
+        settingsService = SettingsService()
+        locationSettings = settingsService.loadLocationSettings()
+        self.lat = locationSettings.get('lat')
+        self.lon = locationSettings.get('long')
 
         self.__map = self.ids.tankerMap
 
@@ -57,9 +57,8 @@ class MapViewTanker(FloatLayout):
 
         assert isinstance(self.__map, MapView)
 
-        settingsService = SettingsService()
         apiCaller = ApiCaller(settingsService)
-        data = apiCaller.getQueriedTankerData(self.lat, self.lon)
+        data = apiCaller.getQueriedTankerData()
 
         self.__setLowestAndHighestPrice(data)
         self.generateMarkersForData(data)
@@ -171,14 +170,10 @@ class TableView(AnchorLayout):
         '''
                 
         super().__init__(**kwargs)
-        g = geocoder.ip('me')
-        
-        lat = g.latlng[0]
-        lon = g.latlng[1]
 
         settingsService = SettingsService()
         apiCaller = ApiCaller(settingsService)
-        data = apiCaller.getQueriedTankerData(lat, lon)
+        data = apiCaller.getQueriedTankerData()
         stationData = data['stations']
 
         row_data = [
@@ -286,11 +281,9 @@ class SettingsLayout(BoxLayout):
         loc = Nominatim(user_agent="Geopy Library")
         getLoc = loc.geocode(location)
 
-        print("Latitude = ", getLoc.latitude, "\n")
-        print("Longitude = ", getLoc.longitude)
-
         settingsService = SettingsService()
         settingsService.saveSettings(self.__radius, self.__type)
+        settingsService.saveLocationSettings(getLoc.latitude, getLoc.longitude)
                 
 class TankerApp(MDApp):
     '''

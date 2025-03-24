@@ -29,7 +29,7 @@ class ApiCaller():
         assert isinstance(settingsService, SettingsService)
         self.__settingsService = settingsService
 
-    def getQueriedTankerData(self, lat, lon):
+    def getQueriedTankerData(self):
         '''
         Uses the provided location values to query the Tankerkoenig API and get back matching values. The settings for the API call are loaded through the SettingsService class.
         -------------------
@@ -44,7 +44,10 @@ class ApiCaller():
 
         try: 
             settings = self.__settingsService.loadSettings()
-            url = self.URL + "?lat=" + str(lat) + '&lng=' + str(lon) + '&rad=' + str(settings.get('radius')) + '&sort=dist&type=' + settings.get('type') + '&apikey=' + self.KEY
+            locationSettings = self.__settingsService.loadLocationSettings()
+            latitude = locationSettings.get('lat')
+            longitude = locationSettings.get('long')
+            url = self.URL + "?lat=" + str(latitude) + '&lng=' + str(longitude) + '&rad=' + str(settings.get('radius')) + '&sort=dist&type=' + settings.get('type') + '&apikey=' + self.KEY
             data = requests.get(url)
 
             return data.json()

@@ -11,6 +11,7 @@ class SettingsService():
     '''    
 
     FILE_NAME = 'settings.json'
+    SETTINGS_FILE_NAME = 'location_settings.json'
     ALLOWED_TYPES = ['e5', 'e10', 'diesel', 'all']
 
     def validateSettingParameters(self, radius, type):
@@ -86,6 +87,57 @@ class SettingsService():
 
         try:
             with open(self.FILE_NAME, 'r') as jsonFile:
+                settings = json.load(jsonFile)
+
+            return settings
+        except Exception as error:
+            print(f'An error has occured while loading the settings, message: {error}')
+
+            return {}
+    
+    def saveLocationSettings(self, lat, long):
+        '''
+        Saves the provided settings into the settings.json file if they are valid.
+        -------------------
+        Parameters:
+            radius: float, range 1 - 25
+            type: string, ["e5", "e10", "diesel", "all"]
+        -------------------
+        Returns:
+            boolean
+        -------------------
+        '''
+
+        jsonSettings = {
+            'lat': lat,
+            'long': long
+        }
+
+        try:
+            with open(self.SETTINGS_FILE_NAME, 'w') as jsonFile:
+                json.dump(jsonSettings, jsonFile)
+
+            return True
+        except Exception as error:
+            print(f'An error has occured while saving the settings, message: {error}')
+
+            return False
+
+    def loadLocationSettings(self):
+        '''
+        Loads the saved settings directly from the the settings.json file. If no settings are provided, it will return an empty dictionary instead of the settings.
+        The returned setting dictionary should typically have the "radius" and "type" parameters.
+        -------------------
+        Parameters:
+            none
+        -------------------
+        Returns:
+            dictionary
+        -------------------
+        '''
+
+        try:
+            with open(self.SETTINGS_FILE_NAME, 'r') as jsonFile:
                 settings = json.load(jsonFile)
 
             return settings
