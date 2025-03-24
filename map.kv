@@ -17,31 +17,14 @@
 		orientation: "vertical"
 		Image:
 			source: "images/tankericon.png"
-		#BoxLayout:
-			#orientation: "horizontal"
-			#spacing: 10
-			#padding: 10
-			#TextInput:
-				#hint_text: "PLZ"
-				#multiline: False
-				#size_hint_y: None
-				#height: 30
-			#Label:
-				#text: "-ODER-"
-				#size_hint_y: None
-				#height: 30
-				#color: 0, 0, 0, 1
-			#Button:
-				#size_hint_y: None
-				#height: 30
-				#background_color: 0, 0, 0, 0
-
-				#Image:
-					#source: "images/marker.png"
-					#center_x: self.parent.center_x
-					#center_y: self.parent.center_y
-					#size_hint_y: None
-					#height: 30
+		TextInput:
+			id: plzInput
+			hint_text: "PLZ"
+			multiline: False
+			pos_hint: {"center_x": 0.5, "center_y": 0.5}
+			size_hint: (None, None)
+			width: 100
+			height: 30
 		BoxLayout:
 			orientation: "horizontal"
 			padding: 50

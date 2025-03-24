@@ -16,6 +16,7 @@ import ssl
 from ApiCaller import ApiCaller
 from SettingsService import SettingsService
 import geocoder
+from geopy.geocoders import Nominatim
 
 class MapViewTanker(FloatLayout):
     '''
@@ -280,6 +281,14 @@ class SettingsLayout(BoxLayout):
         self.menu.dismiss()
     
     def saveSettings(self):
+        location = self.ids.plzInput.text
+        print(location)
+        loc = Nominatim(user_agent="Geopy Library")
+        getLoc = loc.geocode(location)
+
+        print("Latitude = ", getLoc.latitude, "\n")
+        print("Longitude = ", getLoc.longitude)
+
         settingsService = SettingsService()
         settingsService.saveSettings(self.__radius, self.__type)
                 
