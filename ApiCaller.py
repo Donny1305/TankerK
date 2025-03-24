@@ -44,10 +44,8 @@ class ApiCaller():
 
         try: 
             settings = self.__settingsService.loadSettings()
-            locationSettings = self.__settingsService.loadLocationSettings()
-            latitude = locationSettings.get('lat')
-            longitude = locationSettings.get('long')
-            url = self.URL + "?lat=" + str(latitude) + '&lng=' + str(longitude) + '&rad=' + str(settings.get('radius')) + '&sort=dist&type=' + settings.get('type') + '&apikey=' + self.KEY
+            (lat, long) = self.__settingsService.loadLocationSettings()
+            url = self.URL + "?lat=" + str(lat) + '&lng=' + str(long) + '&rad=' + str(settings.get('radius')) + '&sort=dist&type=' + settings.get('type') + '&apikey=' + self.KEY
             data = requests.get(url)
 
             return data.json()

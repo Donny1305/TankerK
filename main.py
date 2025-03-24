@@ -15,7 +15,6 @@ from kivy.properties import NumericProperty, StringProperty
 import ssl
 from ApiCaller import ApiCaller
 from SettingsService import SettingsService
-import geocoder
 from geopy.geocoders import Nominatim
 
 class MapViewTanker(FloatLayout):
@@ -47,9 +46,9 @@ class MapViewTanker(FloatLayout):
         ssl._create_default_https_context = ssl._create_stdlib_context
         super().__init__(**kwargs)
         settingsService = SettingsService()
-        locationSettings = settingsService.loadLocationSettings()
-        self.lat = locationSettings.get('lat')
-        self.lon = locationSettings.get('long')
+        (lat, long) = settingsService.loadLocationSettings()
+        self.lat = lat
+        self.lon = long
 
         self.__map = self.ids.tankerMap
 
@@ -277,7 +276,6 @@ class SettingsLayout(BoxLayout):
     
     def saveSettings(self):
         location = self.ids.plzInput.text
-        print(location)
         loc = Nominatim(user_agent="Geopy Library")
         getLoc = loc.geocode(location)
 

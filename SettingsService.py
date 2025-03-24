@@ -1,5 +1,6 @@
 from SettingsExceptions import SettingsError, UnallowedRadiusError, UnallowedTypeError
 import json
+import geocoder
 
 class SettingsService():
     '''
@@ -139,8 +140,11 @@ class SettingsService():
         try:
             with open(self.SETTINGS_FILE_NAME, 'r') as jsonFile:
                 settings = json.load(jsonFile)
+                g = geocoder.ip('me')
+                lat = settings.get('lat', g.latlng[0])
+                long = settings.get('long', g.latlng[1])
 
-            return settings
+            return (lat, long)
         except Exception as error:
             print(f'An error has occured while loading the settings, message: {error}')
 
