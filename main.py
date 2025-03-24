@@ -16,6 +16,7 @@ import ssl
 from ApiCaller import ApiCaller
 from SettingsService import SettingsService
 from geopy.geocoders import Nominatim
+import geocoder
 
 class MapViewTanker(FloatLayout):
     '''
@@ -301,6 +302,9 @@ class SettingsLayout(BoxLayout):
             loc = Nominatim(user_agent="Geopy Library")
             getLoc = loc.geocode(location)
             settingsService.saveLocationSettings(getLoc.latitude, getLoc.longitude)
+        else:
+            g = geocoder.ip('me')
+            settingsService.saveLocationSettings(g.latlng[0], g.latlng[1])
 
         MDApp.get_running_app().root.first_widget.children[0].updateMap()
                 
