@@ -293,12 +293,14 @@ class SettingsLayout(BoxLayout):
     
     def saveSettings(self):
         location = self.ids.plzInput.text
-        loc = Nominatim(user_agent="Geopy Library")
-        getLoc = loc.geocode(location)
 
         settingsService = SettingsService()
         settingsService.saveSettings(self.__radius, self.__type)
-        settingsService.saveLocationSettings(getLoc.latitude, getLoc.longitude)
+
+        if (location != ''):
+            loc = Nominatim(user_agent="Geopy Library")
+            getLoc = loc.geocode(location)
+            settingsService.saveLocationSettings(getLoc.latitude, getLoc.longitude)
 
         MDApp.get_running_app().root.first_widget.children[0].updateMap()
                 
