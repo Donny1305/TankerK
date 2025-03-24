@@ -24,7 +24,7 @@ class MapViewTanker(FloatLayout):
     -------------------
     The MapViewTanker class uses the MapView class from kivy_garden.mapview to provide the different map capabilities of the application.
     The main purpose is to display an OpenStreetMap and fill it with different markers for petrol stations around the user's location.
-    The MapView gets arranged into a FloatLayout to allow easy control of the map space.
+    The MapView gets arranged into a FloatLayout to allow easy control of the map space. It can be dynamically updated whenever the settings change.
     -------------------
     '''  
 
@@ -34,7 +34,7 @@ class MapViewTanker(FloatLayout):
 
     def __init__(self, **kwargs):
         '''
-        Initialises the class with all the different needed values. It generates initial markers for the different petrol stations returned from the TankerKoenig API.
+        Initialises the class with all the different needed values. It generates initial markers for the different petrol stations returned from the TankerKoenig API with updateMap().
         -------------------
         Parameters:
             none
@@ -48,12 +48,14 @@ class MapViewTanker(FloatLayout):
         super().__init__(**kwargs)
         self.__map = self.ids.tankerMap
         self.zoom = 15
+        self.__markerList = []
 
         self.updateMap()
 
     def __generateMarkersForData(self, data):
         '''
-        Uses the provided dataset to generate according MapMarkerPopups on the MapView element. This will be visible in the UI so that the user can see where each station is and what the prices are like.
+        Uses the provided dataset to generate according MapMarkerPopups on the MapView element. 
+        This will be visible in the UI so that the user can see where each station is and what the prices are like.
         -------------------
         Parameters:
             data: dictionary
@@ -62,12 +64,15 @@ class MapViewTanker(FloatLayout):
             void
         -------------------
         '''
+        self.__resetMarkerDisplay()
 
         for dataSet in data.get('stations'):
             stationLat = dataSet.get('lat')
             stationLon = dataSet.get('lng')
             title = dataSet.get('brand')
             price = dataSet.get('price')
+            if price is None:
+                price = 0.0
             street = dataSet.get('street') + " " + str(dataSet.get('houseNumber'))
             location = str(dataSet.get('postCode')) + " " + dataSet.get('place')
 
@@ -87,7 +92,28 @@ class MapViewTanker(FloatLayout):
             marker.popup_size = 100, 100
             marker.add_widget(label)
 
+            self.__markerList.append(marker)
             self.__map.add_marker(marker)
+    
+    def __resetMarkerDisplay(self):
+        '''
+        Resets all the markers displayed on the map to allow updates to the map.
+        -------------------
+        Parameters:
+            None
+        -------------------
+        Returns:
+            void
+        -------------------
+        '''
+                
+        if self.__markerList == []:
+            return
+        
+        for marker in self.__markerList:
+            self.__map.remove_marker(marker)
+        
+        self.__markerList = []
 
     def getMarkerSourceForPrice(self, price):
         '''
@@ -112,9 +138,9 @@ class MapViewTanker(FloatLayout):
         
         return 'images/red32.png'
 
-    def __setLowestAndHighestPrice(self, data):
+    def __setLowestPrice(self, data):
         '''
-        Sets the lowest and highest price based off of the dataset.
+        Sets the lowest price based off of the dataset.
         -------------------
         Parameters:
             data: dictionary
@@ -124,19 +150,27 @@ class MapViewTanker(FloatLayout):
         -------------------
         '''
 
-        self.__highestPrice = 0
         self.__lowestPrice = 5
-
         for dataSet in data.get('stations'):
             price = dataSet.get('price')
-            if (dataSet.get('price')) > self.__highestPrice:
-                self.__highestPrice = price
+            if price is None:
                 continue
 
-            if (dataSet.get('price')) < self.__lowestPrice:
+            if (price) < self.__lowestPrice:
                 self.__lowestPrice = price
 
     def __updateDataIfTypeAll(self, data):
+        '''
+        This function updates the dataset from the queried API if the type is set to "all".
+        The setting "all" returns the price for all different fuel types per station, which then get filtered to choose the cheapest one when displaying the prices.
+        -------------------
+        Parameters:
+            data: Dictionary
+        -------------------
+        Returns:
+            Dictionary
+        -------------------
+        '''
         key = 0
         for dataSet in data.get('stations'):
             dataPrices = {'diesel': dataSet.get('diesel'), 'e5': dataSet.get('e5'), 'e10': dataSet.get('e10')}
@@ -146,19 +180,29 @@ class MapViewTanker(FloatLayout):
 
         return data
             
-    
     def updateMap(self):
+        '''
+        This function dynamically updates the map markers with a fresh API call based on newer location and user settings and can be used freely after initialisation.
+        In case the desired fuel type is "all", a special function is used to determine the cheapest fuel per station.
+        It calls all the other functions for selecting and generating the correct markers.
+        -------------------
+        Parameters:
+            None
+        -------------------
+        Returns:
+            void
+        -------------------
+        '''
         settingsService = SettingsService()
         (lat, lon) = settingsService.loadLocationSettings()
         self.__map.center_on(lat, lon)
         settings = settingsService.loadSettings()
         apiCaller = ApiCaller(settingsService)
         data = apiCaller.getQueriedTankerData()
-
         if ('all' == settings.get('type')):
             data = self.__updateDataIfTypeAll(data)
 
-        self.__setLowestAndHighestPrice(data)
+        self.__setLowestPrice(data)
         self.__generateMarkersForData(data)
 
 
@@ -192,7 +236,7 @@ class TableView(AnchorLayout):
         stationData = data['stations']
 
         row_data = [
-            (station['name'], station['dist'], station['price'])
+            (station['name'], station['dist'], station.get('price', station.get('diesel')))
             for station in stationData
         ]
 
