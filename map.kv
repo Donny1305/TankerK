@@ -1,5 +1,14 @@
 #:import MapView kivy_garden.mapview.MapView
 
+# Authors
+# MapViewTanker: Marian Neff
+# MDBottomNavigation: Alexander Gajer
+# SettingsLayout: Mark Lepod
+
+
+# The MapViewTanker widget is used to display a working MapView in the UI. It provides its own OpenStreetMap that can be controlled easily be the user.
+# The zoom property is used to define how far the map is zoomed in. The lat and lon properties define on which location the map is centered on.
+# The id is used to dynamically access the MapView widget, so that the map can be updated freely throughout the application if there are changes in the data.
 <MapViewTanker>:
 	MapView:
 		id: tankerMap
