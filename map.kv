@@ -16,11 +16,17 @@
 		lon: root.lon
 		zoom: root.zoom
 
+# The MDBottomNavigation is responsible for letting the user switch between the different app functionalities. It displays three different icons at the bottom of the screen which have a green background colour.
+# These icons can be clicked to cycle between the map, the settings page and the table view.
 <MDBottomNavigation>:
     #panel_color: "#eeeaea"
     selected_color_background: "green"
     text_color_active: "lightgrey"
 
+# The SettingsLayout uses the BoxLayout to align all the different UI components. It provides a TextInput where the user can enter a ZIP code according to their desired location.
+# The ZIP code automatically updates the location with the coordinates of the stated city once the Button with the id "saveSettings" is pressed. The method saveSettings() then loads the settings into the JSON file.
+# Additionally, there are dropdowns that allow the user to update the settings for the desired fuel type and search radius.
+# This data is later used to query the TankerKoenig API. All the settings can be persisted using the before mentioned button.
 <SettingsLayout>:
 	BoxLayout:
 		orientation: "vertical"
