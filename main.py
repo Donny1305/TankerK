@@ -81,7 +81,7 @@ class MapViewTanker(FloatLayout):
             address += "\n" + title
             address += "\n" + str(price) + "€"
 
-            markerSource = self.getMarkerSourceForPrice(price)
+            markerSource = self.__getMarkerSourceForPrice(price)
             marker = MapMarkerPopup(lat=stationLat, lon=stationLon, source=markerSource)
 
             label = Label(text=address)
@@ -115,7 +115,7 @@ class MapViewTanker(FloatLayout):
         
         self.__markerList = []
 
-    def getMarkerSourceForPrice(self, price):
+    def __getMarkerSourceForPrice(self, price):
         '''
         Checks the provided price to see if it is a bad, mediocre or good price compared to the highest and lowest price of the queried dataset.
         Stations with prices equal to the best price are marked in green.
