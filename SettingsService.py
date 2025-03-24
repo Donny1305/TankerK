@@ -77,6 +77,7 @@ class SettingsService():
         '''
         Loads the saved settings directly from the the settings.json file. If no settings are provided, it will return an empty dictionary instead of the settings.
         The returned setting dictionary should typically have the "radius" and "type" parameters.
+        If there are no settings created yet, sample settings will be saved so that the functionality of the app is ensured.
         -------------------
         Parameters:
             none
@@ -91,6 +92,10 @@ class SettingsService():
                 settings = json.load(jsonFile)
 
             return settings
+        except FileNotFoundError as fileNotFoundError:
+            self.saveSettings(5.0, 'e10')
+
+            return {'radius': 5.0, 'type': 'e10'}
         except Exception as error:
             print(f'An error has occured while loading the settings, message: {error}')
 
@@ -128,6 +133,7 @@ class SettingsService():
         '''
         Loads the saved location settings directly from the the location_settings.json file. If no settings are provided, it will return the current location based on the geocoder package.
         The returned setting tupel should typically have the "lat" and "long" parameters.
+        If there is no file created yet, the method uses the IP adress to fill the values and make a filler file.
         -------------------
         Parameters:
             none
@@ -136,16 +142,23 @@ class SettingsService():
             tupel
         -------------------
         '''
+        g = geocoder.ip('me')
 
         try:
             with open(self.SETTINGS_FILE_NAME, 'r') as jsonFile:
                 settings = json.load(jsonFile)
-                g = geocoder.ip('me')
                 lat = settings.get('lat', g.latlng[0])
-                long = settings.get('long', g.latlng[1])
+                lon = settings.get('long', g.latlng[1])
 
-            return (lat, long)
+            return (lat, lon)
+        except FileNotFoundError as fileNotFoundError:
+            lat = g.latlng[0]
+            lon = g.latlng[1]
+
+            self.saveLocationSettings(lat, lon)
+            return (lat, lon)
         except Exception as error:
+            print(error)
             print(f'An error has occured while loading the settings, message: {error}')
 
-            return {}
+            return ()
