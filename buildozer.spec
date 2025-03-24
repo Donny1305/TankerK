@@ -9,7 +9,7 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 
 version = 0.1
-requirements = python3,kivy,kivymd,kivy_garden.mapview,requests,geopy,geocoder,ratelim,decorator,click
+requirements = python3,kivy,kivymd,kivy_garden.mapview,requests,geopy,geocoder,ratelim,decorator,click,future,six
 
 orientation = portrait
 fullscreen = 0
